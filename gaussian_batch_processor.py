@@ -1,17 +1,22 @@
 """Create pseudo-segmentation masks and YOLO/Roboflow labels.
 
-Edit the settings below, then run ``python gaussian_difference.py``.  The
-implementation is in ``pseudo_labeller`` and can be reused from notebooks.
+Edit the settings below, then run ``python gaussian_batch_processor.py``.  The
+implementation is in ``02_pseudo_labeller`` and can be reused from notebooks.
 """
 
+from importlib import import_module
 from pathlib import Path
-from pseudo_labeller import GaussianDifferenceConfig, PseudoLabelGenerator
+
+
+pseudo_labeller = import_module("02_pseudo_labeller")
+GaussianDifferenceConfig = pseudo_labeller.GaussianDifferenceConfig
+PseudoLabelGenerator = pseudo_labeller.PseudoLabelGenerator
 
 
 CONFIG = GaussianDifferenceConfig(
-    input_root=Path(r"F:\0918_data\0918_data_raw"),
-    mask_output_root=Path(r"F:\__pseudo_labeller\02_pseudo_labeller\processed_mask\0918_pseudo_masks"),
-    label_output_root=Path(r"F:\__pseudo_labeller\02_pseudo_labeller\processed_mask\0918_pseudo_yolo_labels"),
+    input_root=Path(r"__data/20260918_extracted"),
+    mask_output_root=Path(r"__data/20260918_labelled/masks"),
+    label_output_root=Path(r"__data/20260918_labelled/outputs"),
     class_id=0,
     class_name="Exposure",
     min_contour_area=0.0,

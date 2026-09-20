@@ -1,0 +1,8 @@
+__data/
+*.png
+*.zip
+*.txt
+*.log
+*.csv
+.DS_Store
+*.pyc
