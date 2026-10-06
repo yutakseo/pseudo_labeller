@@ -10,6 +10,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
+from typing import Sequence
 
 import cv2
 import numpy as np
@@ -1443,9 +1444,10 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> None:
+def main(arguments: Sequence[str] | None = None) -> None:
+    """Run the ROI CLI, optionally with an explicit argument list."""
     parser = build_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(arguments)
     if args.mode == 'gabor_boundary':
         if __package__:
             from .roi_boundary_quality import load_config
