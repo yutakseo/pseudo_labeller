@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 DEFAULT_IMAGE_EXTENSIONS = frozenset({".bmp", ".jpeg", ".jpg", ".png", ".tif", ".tiff"})
+FORMAT_OPTIONS = frozenset({"none", "yolo", "label_studio"})
 
 
 @dataclass(frozen=True)
@@ -24,6 +25,7 @@ class GaussianDifferenceConfig:
     gaussian_sigma: float = 0.0
     mask_threshold: int | None = None
     image_extensions: frozenset[str] = DEFAULT_IMAGE_EXTENSIONS
+    formatting: str = "none"
 
     def validate(self) -> None:
         """Raise a helpful exception when a configuration value is invalid."""
@@ -43,3 +45,6 @@ class GaussianDifferenceConfig:
             raise ValueError("min_contour_area must be zero or positive")
         if self.contour_approximation_ratio < 0:
             raise ValueError("contour_approximation_ratio must be zero or positive")
+        if self.formatting not in FORMAT_OPTIONS:
+            options = ", ".join(sorted(FORMAT_OPTIONS))
+            raise ValueError(f"formatting must be one of: {options}")

@@ -12,8 +12,10 @@ from pathlib import Path
 from typing import FrozenSet, Optional, Sequence
 
 
-DEFAULT_DATASET_NAME = "20260918_데이터취득"
-DEFAULT_OUTPUT_NAME = "20260918_extracted"
+DEFAULT_SOURCE_RELATIVE_PATH = (
+    Path("20261002_누락시편추가촬영") / "20261002_(0)raw" / "case14"
+)
+DEFAULT_OUTPUT_NAME = "20260918_(1)extracted"
 DEFAULT_EXPOSURE = "10000us"
 DEFAULT_MONO_PREFIX = "mono_"
 DEFAULT_IMAGE_EXTENSIONS: FrozenSet[str] = frozenset(
@@ -153,7 +155,7 @@ def createConfig(arguments: argparse.Namespace) -> ExtractionConfig:
     project_root = Path(__file__).resolve().parents[1]
     source_root = arguments.source
     if source_root is None:
-        source_root = findDataset(project_root / "__data", DEFAULT_DATASET_NAME)
+        source_root = project_root / "__data" / DEFAULT_SOURCE_RELATIVE_PATH
     return ExtractionConfig(
         source_root=source_root,
         output_root=arguments.output,
