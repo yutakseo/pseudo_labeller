@@ -13,8 +13,8 @@ from PIL import Image
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = PROJECT_ROOT / "__data"
-SOURCE_IMAGES = DATA_ROOT / "20260918_(2)cropped" / "crops" / "auto"
-SOURCE_MASKS = DATA_ROOT / "20260922_(3)labelled" / "masks"
+SOURCE_IMAGES = DATA_ROOT / "20261010_(2)cropped" / "crops" / "auto"
+SOURCE_MASKS = DATA_ROOT / "20261010_(3)labelled" / "masks"
 SOURCE_LABELMAP = DATA_ROOT / "20260922_(3)labelled" / "outputs" / "labelmap.txt"
 OUTPUT_ROOT = DATA_ROOT / "20260922_(4)labelstudio"
 

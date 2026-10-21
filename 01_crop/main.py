@@ -1,7 +1,8 @@
 """Configure and run ROI cropping without writing a long command line.
 
-Edit ``CONFIG`` below, then run ``python 01_crop/main.py`` from the project
-root.  ``extra_args`` accepts any advanced option exposed by
+Edit ``DATASET_NAME`` below, then run ``python 01_crop/main.py``.  Paths are
+built from the project directory, so it also works when launched from an IDE.
+``extra_args`` accepts any advanced option exposed by
 ``auto_roi_local_std.py --help`` that is not represented as a config field.
 """
 
@@ -20,7 +21,15 @@ else:  # Supports `python 01_crop/main.py` and direct IDE execution.
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = PROJECT_ROOT / "__data"
-DATASET_ROOT = DATA_ROOT / "20261002_누락시편추가촬영"
+
+# ---------------------------------------------------------------------------
+# Run settings: change this value for a new dataset.
+# ---------------------------------------------------------------------------
+DATASET_NAME = "20261010_case16"
+
+# Input is the output of 00_extract; crop results are its next pipeline stage.
+EXTRACTED_ROOT = DATA_ROOT / f"{DATASET_NAME}_(1)extracted"
+CROPPED_ROOT = DATA_ROOT / f"{DATASET_NAME}_(2)cropped"
 
 
 @dataclass(frozen=True)
@@ -72,9 +81,9 @@ class RoiCropConfig:
 
 
 CONFIG = RoiCropConfig(
-    source=DATASET_ROOT / "20261002_(1)extracted",
+    source=EXTRACTED_ROOT,
     # Must be new or empty: ROI processing intentionally will not mix runs.
-    output=DATASET_ROOT / "20261002_(2)cropped_new",
+    output=CROPPED_ROOT,
 )
 
 

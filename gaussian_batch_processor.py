@@ -1,7 +1,9 @@
 """Create pseudo-segmentation labels and optionally export a dataset format.
 
-Edit the settings below, then run ``python gaussian_batch_processor.py``.  The
-implementation is in ``02_pseudo_labeller`` and can be reused from notebooks.
+Edit ``DATASET_NAME`` below, then run ``python gaussian_batch_processor.py``.
+All paths are built from the project directory, so the script works from an
+IDE as well as a terminal. The implementation is in ``02_pseudo_labeller``
+and can be reused from notebooks.
 """
 
 from importlib import import_module
@@ -15,11 +17,22 @@ RoboflowYoloPackager = formatters.RoboflowYoloPackager
 YoloPackagingConfig = formatters.YoloPackagingConfig
 build_label_studio_dataset = formatters.build_dataset
 
+# ---------------------------------------------------------------------------
+# Run settings: change this value for a new dataset.
+# ---------------------------------------------------------------------------
+PROJECT_ROOT = Path(__file__).resolve().parent
+DATA_ROOT = PROJECT_ROOT / "__data"
+DATASET_NAME = "20261010_case16"
+
+# Input is the crop stage output; labelled data is the next pipeline stage.
+CROPPED_ROOT = DATA_ROOT / f"{DATASET_NAME}_(2)cropped"
+LABELLED_ROOT = DATA_ROOT / f"{DATASET_NAME}_(3)labelled"
+
 
 CONFIG = GaussianDifferenceConfig(
-    input_root=Path(r"F:\Pseudo-labeller-v2\pseudo_labeller\__data\20261002_누락시편추가촬영\20261002_(2)cropped\crops\auto"),
-    mask_output_root=Path(r"__data\20261002_누락시편추가촬영\20260922_(3)labelled/masks"),
-    label_output_root=Path(r"__data\20261002_누락시편추가촬영\20260922_(3)labelled/outputs"),
+    input_root=CROPPED_ROOT,
+    mask_output_root=LABELLED_ROOT,
+    label_output_root=LABELLED_ROOT,
     class_id=0,
     class_name="Exposure",
     min_contour_area=0.0,
@@ -32,8 +45,8 @@ CONFIG = GaussianDifferenceConfig(
 )
 
 # Export destinations used only when their matching `formatting` mode is selected.
-LABEL_STUDIO_OUTPUT_ROOT = CONFIG.mask_output_root.parent / "label_studio"
-YOLO_OUTPUT_ZIP = CONFIG.mask_output_root.parent / "yolo_roboflow_upload.zip"
+LABEL_STUDIO_OUTPUT_ROOT = DATA_ROOT / f"{DATASET_NAME}_label_studio"
+YOLO_OUTPUT_ZIP = DATA_ROOT / f"{DATASET_NAME}_yolo_roboflow_upload.zip"
 
 
 def export_format() -> None:

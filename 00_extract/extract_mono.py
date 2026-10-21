@@ -1,4 +1,9 @@
-"""Extract mono images captured at one exposure while preserving the source tree."""
+"""Extract mono images at one exposure while preserving the source tree.
+
+Usually only edit ``DATASET_NAME`` and ``EXPOSURE`` below, then run this file.
+All paths are built from the project directory, so the current working directory
+does not matter.
+"""
 
 from __future__ import annotations
 
@@ -6,17 +11,24 @@ import argparse
 import logging
 import shutil
 import sys
-import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import FrozenSet, Optional, Sequence
 
 
-DEFAULT_SOURCE_RELATIVE_PATH = (
-    Path("20261002_누락시편추가촬영") / "20261002_(0)raw" / "case14"
-)
-DEFAULT_OUTPUT_NAME = "20260918_(1)extracted"
-DEFAULT_EXPOSURE = "10000us"
+# ---------------------------------------------------------------------------
+# Run settings: change these two values for a new extraction run.
+# ---------------------------------------------------------------------------
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_ROOT = PROJECT_ROOT / "__data"
+DATASET_NAME = "20261010_case16"
+EXPOSURE = "10000us"
+
+# Input:  __data/<DATASET_NAME>
+# Output: __data/<DATASET_NAME>_(1)extracted
+DEFAULT_SOURCE_ROOT = DATA_ROOT / DATASET_NAME
+DEFAULT_OUTPUT_ROOT = DATA_ROOT / f"{DATASET_NAME}_(1)extracted"
+
 DEFAULT_MONO_PREFIX = "mono_"
 DEFAULT_IMAGE_EXTENSIONS: FrozenSet[str] = frozenset(
     {".bmp", ".jpeg", ".jpg", ".png", ".tif", ".tiff"}
@@ -30,7 +42,7 @@ class ExtractionConfig:
 
     source_root: Path
     output_root: Path
-    exposure: str = DEFAULT_EXPOSURE
+    exposure: str = EXPOSURE
     mono_prefix: str = DEFAULT_MONO_PREFIX
     image_extensions: FrozenSet[str] = DEFAULT_IMAGE_EXTENSIONS
 
@@ -100,31 +112,8 @@ class MonoExtractor:
         shutil.copy2(source_path, output_path)
 
 
-def normalizeName(name: str) -> str:
-    """Normalize a name so macOS decomposed Hangul compares reliably."""
-    return unicodedata.normalize("NFC", name)
-
-
-def findDataset(data_root: Path, dataset_name: str) -> Path:
-    """Find a dataset by Unicode-normalized directory name."""
-    expected_name = normalizeName(dataset_name)
-    matches = sorted(
-        path
-        for path in data_root.iterdir()
-        if path.is_dir() and normalizeName(path.name) == expected_name
-    )
-    if not matches:
-        raise FileNotFoundError(f"Dataset not found under {data_root}: {dataset_name}")
-    if len(matches) > 1:
-        paths = ", ".join(str(path) for path in matches)
-        raise RuntimeError(f"Multiple matching datasets found: {paths}")
-    return matches[0]
-
-
 def parseArgs(arguments: Optional[Sequence[str]] = None) -> argparse.Namespace:
     """Parse command-line options."""
-    project_root = Path(__file__).resolve().parents[1]
-    data_root = project_root / "__data"
     parser = argparse.ArgumentParser(
         description=(
             "Copy mono images from one exposure directory while preserving "
@@ -134,30 +123,27 @@ def parseArgs(arguments: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument(
         "--source",
         type=Path,
-        help="Source dataset root (default: __data/20260918_데이터취득)",
+        default=DEFAULT_SOURCE_ROOT,
+        help=f"Source dataset root (default: {DEFAULT_SOURCE_ROOT})",
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=data_root / DEFAULT_OUTPUT_NAME,
-        help="Output root (default: __data/20260918_extracted)",
+        default=DEFAULT_OUTPUT_ROOT,
+        help=f"Output root (default: {DEFAULT_OUTPUT_ROOT})",
     )
     parser.add_argument(
         "--exposure",
-        default=DEFAULT_EXPOSURE,
-        help="Exact exposure directory name (default: 10000us)",
+        default=EXPOSURE,
+        help=f"Exact exposure directory name (default: {EXPOSURE})",
     )
     return parser.parse_args(arguments)
 
 
 def createConfig(arguments: argparse.Namespace) -> ExtractionConfig:
     """Create a validated extraction configuration from CLI arguments."""
-    project_root = Path(__file__).resolve().parents[1]
-    source_root = arguments.source
-    if source_root is None:
-        source_root = project_root / "__data" / DEFAULT_SOURCE_RELATIVE_PATH
     return ExtractionConfig(
-        source_root=source_root,
+        source_root=arguments.source,
         output_root=arguments.output,
         exposure=arguments.exposure,
     )
